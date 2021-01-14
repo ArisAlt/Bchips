@@ -46,7 +46,7 @@ def capture():
         
         
         im = np.array(sct.grab(area))
-        cv.imwrite(directory + '/template_ba1' + f"{count}" + '.png', im)
+        cv.imwrite(directory + '/template_' + f"{count}" + '.png', im)
         cv.imshow('preview', im)
         cv.waitKey(25)
         cv.destroyAllWindows()
