@@ -51,8 +51,7 @@ def recast(found):
 
 def on_press(key):
     global torun
-    
-   
+    has_run = False  
     if key == keyboard.Key.end:
         print ("Closing... ")
         torun = False
@@ -73,14 +72,15 @@ def on_press(key):
        #utils.focus_on_window()
     if key == keyboard.Key.pause:
         
-        torun = False
-        os.system('pause')
-        utils.focus_on_window()
-        run()
- 
-def worker():
-    pass
-
+        if has_run:
+            print("Unpause")
+            utils.focus_on_window()
+            has_run = False 
+            
+        elif not has_run:
+            print("Pause ... Press the Pause key again to continue")
+            has_run = True
+           
 
 
 
