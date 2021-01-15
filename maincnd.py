@@ -16,7 +16,7 @@ from pynput import keyboard
 from pynput.keyboard import Listener
 from screen_setup import screen_setup
 import ctypes
-import platform
+import multiprocessing
 #from tkinter import *
 
 logging.basicConfig(filename = "log.log",level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -27,6 +27,8 @@ wtf = Calculate()
 utils = Detector()
 token = 0
 torun =  True
+has_run = False
+all_processes= []
 def cast():
         auto.keyDown('f8')
         auto.keyUp('f8')
@@ -51,10 +53,11 @@ def recast(found):
 
 def on_press(key):
     global torun
-    has_run = False  
+    global has_run   
     if key == keyboard.Key.end:
         print ("Closing... ")
         torun = False
+        stop_run_thread()
         return torun , sys.exit(0)
     ##123 is esc 
     if key == keyboard.Key.f12:
@@ -71,16 +74,20 @@ def on_press(key):
        
        #utils.focus_on_window()
     if key == keyboard.Key.pause:
-        
+        print(has_run)
         if has_run:
             print("Unpause")
             utils.focus_on_window()
+            start_run_thread()
             has_run = False 
             
         elif not has_run:
             print("Pause ... Press the Pause key again to continue")
+            stop_run_thread()
             has_run = True
-           
+            print(has_run)
+            print(threading.enumerate())
+            print(len(all_processes))
 
 
 
@@ -132,9 +139,21 @@ def start_keyboard_l():
     listener = Listener(name = "keyBoard_Listener", on_press=on_press)
     listener.start()
     listener.join()
+
 def start_run_thread():
-    runThread = Thread(name = "run_thread", target=run, daemon=True)
+    runThread = multiprocessing.Process(
+        name="run_thread", target=run)
     runThread.start()
+    all_processes.append(runThread)
+
+def stop_run_thread():
+    global all_processes
+    for active in all_processes:
+        active.terminate()
+        time.sleep(0.1)
+        active.join(timeout=5)
+    all_processes=[]
+
 def init_run():
     PROCESS_PER_MONITOR_DPI_AWARE = 2
     ctypes.windll.shcore.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE)
